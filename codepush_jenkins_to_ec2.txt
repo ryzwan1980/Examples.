@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'ap-south-1'
+        TARGET_GROUP_ARN = 'arn:aws:elasticloadbalancing:ap-south-1:536697249600:targetgroup/Demo-1/de0684d8ccb9384d'
+        AWS_CREDENTIALS_ID = 'aws-credentials'
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git url: 'https://github.com/ryzwan1980/Host-Resume-on-EC2.git', branch: 'main'
+            }
+        }
+
+        stage('Retrieve Instances') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID]]) {
+                    script {
+                        // Retrieve instance IDs from the target group
+                        def instances = sh(script: """
+                            aws elbv2 describe-target-health --region ${AWS_REGION} --target-group-arn ${TARGET_GROUP_ARN} --query 'TargetHealthDescriptions[*].Target.Id' --output text
+                        """, returnStdout: true).trim().split('\n')
+
+                        // Retrieve public IPs of the instances
+                        def ips = sh(script: """
+                            aws ec2 describe-instances --instance-ids ${instances.join(' ')} --region ${AWS_REGION} --query 'Reservations[*].Instances[*].PublicIpAddress' --output text
+                        """, returnStdout: true).trim().split()
+
+                        env.INSTANCE_IPS = ips.join(',')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Instances') {
+            steps {
+                script {
+                    sshagent(credentials: ['ec2-key']) {
+                        env.INSTANCE_IPS.split(',').each { publicIp ->
+                            sh """
+                                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@${publicIp} '
+                                    cd /var/www/html;
+                                    sudo rm -f index.html style.css;
+                                    sudo git clone https://github.com/ryzwan1980/Host-Resume-on-EC2.git temp_repo;
+                                    sudo cp temp_repo/index.html .;
+                                    sudo cp temp_repo/style.css .;
+                                    sudo rm -rf temp_repo;
+                                    sudo systemctl restart apache2
+                                '
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

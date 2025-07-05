@@ -1,0 +1,2 @@
+Dokcer vs containerd (container runtime) docker images now run through containerd run time on kube . dockershim is now removed .
+separate cli tool (ctr , nerdctr (recommened,like docker commands)used for debussging pruposes or kubelet will kill if any pods is created 

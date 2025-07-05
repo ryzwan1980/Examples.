@@ -1,0 +1,24 @@
+kube commands 
+
+kubectl get pods -o wide 
+kubectl get nodes 
+kubectl apply -f demo.yaml
+minikube service (service name) for exposing ports usind nodeport or loadbalancer 
+minikube start 
+Kubectl create namespaces (new namespaces)
+kubectl delete pods -l app=nginx-app
+kubectl config set-context --current --namespace=<namespace-name>
+kubectl delete deployment nginx-app - to remove deployement itself or even if we deleted pods it will respawn coz of kubelet
+
+KOPS
+kops create cluster --name=demok8scluster.k8s.local(dns name)  --state=s3://kops-riswan-storage --zones=us-east-1a --node-count=1 --node-size=t2.micro --master-size=t2.micro  --master-volume-size=8 --node-volume-size=8 ( or you can use yaml file and "kops create -f "filename" )
+after the cluster is created shoule apply to take effect 
+kops udpate cluster demo1.k8s.local --yes --admin
+kops rolling-update cluster demo1.k8s.local --yes  - to apply the edited configuration to live environment.
+kops delete cluster --name=riswan.k8s.local --yes (yes v.imp)
+
+
+kops delete cluster --name= --state=s3://  --yes   to delete the cluster .
+kops edit cluster demo1.k8s.local    -to edit the cluster before applying 
+edit your node instance group: kops edit ig --name=demo1.k8s.local nodes-ap-south-1a(to edit the instance type and AMI ,count and stuff)
+edit your control-plane instance group: kops edit ig --name=demo1.k8s.local control-plane-ap-south-1a (to edit the instance type and AMI ,count and stuff)

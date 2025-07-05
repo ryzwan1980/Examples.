@@ -1,0 +1,14 @@
+kube function (worker node) data plane 
+
+kubelet-to ensure container is always running 
+kube-proxy - to ensure everypod has ip and load balancing capabalities (like  docker0)
+container runtime - to run the container (containerd,dockershim)
+
+
+Control plane(master)
+
+API server- basically exposes your Kubernetes to external world
+Scheduler - if a request comes to create a pod scheduler decide where to put the container in which pod and all
+etcd-key value store entire cluster information saved here (database)
+Controller manager - Makes sure everything like replica set is running correctly (replica set - decides how creation of pods) in built controller 
+CCM - cloud control manager

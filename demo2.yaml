@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ryzwan
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ryzwan
+  template:
+    metadata:
+      labels:
+        app: ryzwan
+    spec:
+      containers:
+      - name: ryzwan
+        image: ryzwan1980/front
+        ports:
+        - containerPort: 80

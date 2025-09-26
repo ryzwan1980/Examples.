@@ -13,7 +13,7 @@ jobs:
         id: check_branch
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUBTOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
               await github.repos.getBranch({
@@ -46,7 +46,7 @@ jobs:
         id: check_pr
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUBTOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { data: pullRequests } = await github.pulls.list({
               owner: context.repo.owner,
@@ -60,7 +60,7 @@ jobs:
         if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result == ''
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUBTOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const date = new Date().toISOString().split('T')[0];
             const title = `Flux Image Update (${date})`;

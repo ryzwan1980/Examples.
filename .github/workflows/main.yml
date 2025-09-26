@@ -3,7 +3,8 @@ name: Create Image for Image Updates
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/image-update-flux" ]
+    branches:
+      - feature/image-update-flux
 
 jobs:
   create-pull-request:
@@ -54,7 +55,8 @@ jobs:
               head: 'feature/image-update-flux',
               state: 'open'
             });
-            return pullRequests.length > 0 ? pullRequests[0].html_url : '';
+            const prUrl = pullRequests.length > 0 ? pullRequests[0].html_url : '';
+            core.setOutput('result', prUrl);
 
       - name: Create Pull Request
         if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result == ''

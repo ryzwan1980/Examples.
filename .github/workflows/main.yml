@@ -14,7 +14,7 @@ jobs:
         id: check_branch
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUBTOKEN }}
           script: |
             try {
               await github.rest.repos.getBranch({
@@ -26,7 +26,7 @@ jobs:
             } catch (error) {
               if (error.status === 404) {
                 core.setOutput("exists", "false");
-                console.log("No branch named feature/image-update-flux");
+                console.log("❌ No branch named feature/image-update-flux");
               } else {
                 throw error;
               }
@@ -47,7 +47,7 @@ jobs:
         id: check_pr
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUBTOKEN }}
           script: |
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -62,7 +62,7 @@ jobs:
         if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result == ''
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUBTOKEN }}
           script: |
             const date = new Date().toISOString().split('T')[0];
             const title = `Flux Image Update (${date})`;

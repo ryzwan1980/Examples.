@@ -78,4 +78,5 @@ jobs:
 
       - name: Output Existing Pull Request URL
         if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result != ''
-        run: echo "✅ Pull Request already exists: ${{ steps.check_pr.outputs.result }}"
+        run: |
+          echo "✅ Pull Request already exists: ${{ steps.check_pr.outputs.result }}"

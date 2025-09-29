@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - demoworkflow2
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 minutes
 
 jobs:
   create-pull-request:
@@ -31,6 +33,7 @@ jobs:
                 throw error;
               }
             }
+
       - name: Output if branch does not exist
         if: steps.check_branch.outputs.exists == 'false'
         run: echo "❌ No branch named demoworkflow2"
@@ -55,9 +58,11 @@ jobs:
               state: 'open'
             });
             const prUrl = pullRequests.length > 0 ? pullRequests[0].html_url : '';
-            core.setOutput('result', prUrl);
+            core.setOutput('existing_pr_url', prUrl);
+
       - name: Create Pull Request
-        if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result == ''
+        if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.existing_pr_url == ''
+        id: create_pr
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUBTOKEN }}
@@ -72,8 +77,13 @@ jobs:
               base: 'demoworkflow',
               body: 'This is an automated pull request created by GitHub Actions.',
             });
-            core.setOutput('pull-request-url', pullRequest.html_url);
-      - name: Output Existing Pull Request URL
-        if: steps.check_branch.outputs.exists == 'true' && steps.check_pr.outputs.result != ''
+            core.setOutput('pr_url', pullRequest.html_url);
+
+      - name: Output Pull Request URL
+        if: steps.check_branch.outputs.exists == 'true'
         run: |
-          echo "✅ Pull Request already exists: ${{ steps.check_pr.outputs.result }}"
+          if [ "${{ steps.check_pr.outputs.existing_pr_url }}" != "" ]; then
+            echo "✅ Pull Request already exists: ${{ steps.check_pr.outputs.existing_pr_url }}"
+          else
+            echo "✅ Created new Pull Request: ${{ steps.create_pr.outputs.pr_url }}"
+          fi
